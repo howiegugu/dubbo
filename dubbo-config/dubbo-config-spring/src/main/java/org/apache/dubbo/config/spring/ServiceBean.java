@@ -34,7 +34,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationEventPublisherAware;
 
 /**
- * ServiceFactoryBean
+ * ServiceFactoryBean 与spring集成时使用
  *
  * @export
  */

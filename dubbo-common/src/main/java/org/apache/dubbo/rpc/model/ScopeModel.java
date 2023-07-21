@@ -35,6 +35,9 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+/**
+ * 扩展的统一访问器
+ */
 public abstract class ScopeModel implements ExtensionAccessor {
     protected static final Logger LOGGER = LoggerFactory.getLogger(ScopeModel.class);
 
@@ -61,12 +64,13 @@ public abstract class ScopeModel implements ExtensionAccessor {
     private String desc;
 
     private Set<ClassLoader> classLoaders;
-
+    // 父模型
     private final ScopeModel parent;
+    // 四种域
     private final ExtensionScope scope;
 
     private ExtensionDirector extensionDirector;
-
+    // 域bean工厂
     private ScopeBeanFactory beanFactory;
     private List<ScopeModelDestroyListener> destroyListeners;
 

@@ -29,8 +29,9 @@ import static org.apache.dubbo.common.constants.CommonConstants.EXPORT_ASYNC_KEY
 import static org.apache.dubbo.common.constants.CommonConstants.SERVICE_FILTER_KEY;
 
 /**
- * AbstractServiceConfig
- *
+ * AbstractServiceConfig  抽象的服务配置
+ * 服务提供者的公共配置,如服务版本,服务分组,服务延迟注册毫秒数,
+ * 是否暴漏服务,服务权重,是否为动态服务,服务协议类型,是否注册等等.
  * @export
  */
 public abstract class AbstractServiceConfig extends AbstractInterfaceConfig {

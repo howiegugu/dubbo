@@ -41,7 +41,8 @@ import static org.apache.dubbo.common.constants.CommonConstants.DUBBO;
 
 /**
  * ServiceConfig
- *
+ * 服务的基础配置类,这个类型仍旧是个抽象的类型提取了一些基础的配置:导出服务的接口类,服务名称,接口实现的引用类型,
+ * 提供者配置,是否是通用服务GenericService
  * @export
  */
 public abstract class ServiceConfigBase<T> extends AbstractServiceConfig {

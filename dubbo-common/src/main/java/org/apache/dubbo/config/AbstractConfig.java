@@ -67,7 +67,8 @@ import static org.apache.dubbo.config.Constants.PARAMETERS;
 
 /**
  * Utility methods and public methods for parsing configuration
- *
+ * 顶层的服务配置类型,封装着解析配置的实用方法和公共方法
+ * 抽象的配置类型
  * @export
  */
 public abstract class AbstractConfig implements Serializable {

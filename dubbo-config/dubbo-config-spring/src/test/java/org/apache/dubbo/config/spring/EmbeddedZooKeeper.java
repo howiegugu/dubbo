@@ -244,4 +244,9 @@ public class EmbeddedZooKeeper implements SmartLifecycle {
         }
     }
 
+    public static void main(String[] args) {
+        EmbeddedZooKeeper embeddedZooKeeper = new EmbeddedZooKeeper(2181, false);
+        embeddedZooKeeper.start();
+    }
+
 }

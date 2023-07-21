@@ -57,8 +57,10 @@ import static org.apache.dubbo.common.constants.MetricsConstants.PROTOCOL_PROMET
 
 
 /**
- * AbstractDefaultConfig
- *
+ * AbstractDefaultConfig 抽象的接口配置
+ * 对服务接口的建模,主要的配置信息有暴漏服务的接口名字,服务接口的版本号,
+ * 客户/提供方将引用的远程服务分组,服务元数据,服务接口的本地impl类名,服务监控配置,
+ * 对于生成动态代理的策略，可以选择两种策略：jdk和javassist,容错类型等等配置
  * @export
  */
 public abstract class AbstractInterfaceConfig extends AbstractMethodConfig {
