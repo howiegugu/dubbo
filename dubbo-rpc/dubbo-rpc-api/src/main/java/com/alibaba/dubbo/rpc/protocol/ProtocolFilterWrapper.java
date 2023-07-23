@@ -45,11 +45,14 @@ public class ProtocolFilterWrapper implements Protocol {
 
     private static <T> Invoker<T> buildInvokerChain(final Invoker<T> invoker, String key, String group) {
         Invoker<T> last = invoker;
+        // 加载拦截器
         List<Filter> filters = ExtensionLoader.getExtensionLoader(Filter.class).getActivateExtension(invoker.getUrl(), key, group);
         if (!filters.isEmpty()) {
             for (int i = filters.size() - 1; i >= 0; i--) {
                 final Filter filter = filters.get(i);
+                // 会把真实的Invoker 服务对象ref 放到拦截器的末尾
                 final Invoker<T> next = last;
+                // 为每个filter生成一个exporter,依次串起来
                 last = new Invoker<T>() {
 
                     @Override
@@ -69,6 +72,7 @@ public class ProtocolFilterWrapper implements Protocol {
 
                     @Override
                     public Result invoke(Invocation invocation) throws RpcException {
+                        // 调用下一个
                         return filter.invoke(next, invocation);
                     }
 
