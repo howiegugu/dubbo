@@ -1,0 +1,1 @@
+customSpi=org.apache.dubbo.demo.provider.spidemo.CustomSpi

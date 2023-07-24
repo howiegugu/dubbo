@@ -118,10 +118,15 @@ public abstract class Wrapper {
         if (c == Object.class) {
             return OBJECT_WRAPPER;
         }
-
+        // 缓存起来
         return WRAPPER_MAP.computeIfAbsent(c, Wrapper::makeWrapper);
     }
 
+    /**
+     * 根据模板生成代理类
+     * @param c
+     * @return
+     */
     private static Wrapper makeWrapper(Class<?> c) {
         if (c.isPrimitive()) {
             throw new IllegalArgumentException("Can not create wrapper for primitive type: " + c);
@@ -276,6 +281,7 @@ public abstract class Wrapper {
         cc.addMethod(c3.toString());
 
         try {
+            // 模板转换成class
             Class<?> wc = cc.toClass(c);
             // setup static field.
             wc.getField("pts").set(null, pts);
@@ -286,6 +292,7 @@ public abstract class Wrapper {
             for (Method m : ms.values()) {
                 wc.getField("mts" + ix++).set(null, m.getParameterTypes());
             }
+            // 创建代理类
             return (Wrapper) wc.getDeclaredConstructor().newInstance();
         } catch (RuntimeException e) {
             throw e;

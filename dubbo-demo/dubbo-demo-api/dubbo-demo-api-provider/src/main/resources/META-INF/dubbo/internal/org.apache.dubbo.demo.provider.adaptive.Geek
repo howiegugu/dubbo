@@ -1,0 +1,3 @@
+dubbo=org.apache.dubbo.demo.provider.adaptive.Dubbo
+springcloud=org.apache.dubbo.demo.provider.adaptive.SpringCloud
+adaptivegeek=org.apache.dubbo.demo.provider.adaptive.AdaptiveGeek
