@@ -302,10 +302,21 @@ public class DubboProtocol extends AbstractProtocol {
     @Override
     public <T> Exporter<T> export(Invoker<T> invoker) throws RpcException {
         checkDestroyed();
+        /**
+         * //服务提供者的url参考例子
+         * dubbo://192.168.1.9:20880/
+         * link.elastic.dubbo.entity.DemoService?anyhost=true&application=dubbo-demo-api-provider
+         * &background=false&bind.ip=192.168.1.9&bind.port=20880&deprecated=false&dubbo=2.0.2
+         * &dynamic=true&generic=false&interface=link.elastic.dubbo.entity.DemoService
+         * &methods=sayHello,sayHelloAsync&pid=6043&release=3.0.8
+         * &service-name-mapping=true&side=provider&timestamp=1654224285437
+         */
         URL url = invoker.getUrl();
 
         // export service.
+        //生成服务的key参考：link.elastic.dubbo.entity.DemoService:20880
         String key = serviceKey(url);
+        //创建导出服务用的导出器DubboExporter
         DubboExporter<T> exporter = new DubboExporter<T>(invoker, key, exporterMap);
 
         //export a stub service for dispatching event
@@ -331,8 +342,10 @@ public class DubboProtocol extends AbstractProtocol {
     private void openServer(URL url) {
         checkDestroyed();
         // find server.
+        // find server. 地址作为key这里是192.168.1.9:20880
         String key = url.getAddress();
         // client can export a service which only for server to invoke
+        //默认提供者开启服务，消费者是不能开启服务的
         boolean isServer = url.getParameter(IS_SERVER_KEY, true);
         if (isServer) {
             ProtocolServer server = serverMap.get(key);
@@ -340,6 +353,7 @@ public class DubboProtocol extends AbstractProtocol {
                 synchronized (this) {
                     server = serverMap.get(key);
                     if (server == null) {
+                        // 创建server
                         serverMap.put(key, createServer(url));
                         return;
                     }
@@ -358,6 +372,7 @@ public class DubboProtocol extends AbstractProtocol {
     }
 
     private ProtocolServer createServer(URL url) {
+        // t添加其他参数
         url = URLBuilder.from(url)
             // send readonly event when server closes, it's enabled by default
             .addParameterIfAbsent(CHANNEL_READONLYEVENT_SENT_KEY, Boolean.TRUE.toString())
@@ -365,7 +380,7 @@ public class DubboProtocol extends AbstractProtocol {
             .addParameterIfAbsent(HEARTBEAT_KEY, String.valueOf(DEFAULT_HEARTBEAT))
             .addParameter(CODEC_KEY, DubboCodec.NAME)
             .build();
-
+        // 默认是netty
         String transporter = url.getParameter(SERVER_KEY, DEFAULT_REMOTING_SERVER);
         if (StringUtils.isNotEmpty(transporter) && !url.getOrDefaultFrameworkModel().getExtensionLoader(Transporter.class).hasExtension(transporter)) {
             throw new RpcException("Unsupported server type: " + transporter + ", url: " + url);
@@ -373,6 +388,8 @@ public class DubboProtocol extends AbstractProtocol {
 
         ExchangeServer server;
         try {
+            //这个方法会绑定端口，关于交换器与传输网络层到后面统一说
+            //这里通过绑定url和请求处理器来创建交换器对象
             server = Exchangers.bind(url, requestHandler);
         } catch (RemotingException e) {
             throw new RpcException("Fail to start server(url: " + url + ") " + e.getMessage(), e);

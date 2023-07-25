@@ -74,6 +74,7 @@ public class QosProtocolWrapper implements Protocol, ScopeModelAware {
 
     @Override
     public <T> Invoker<T> refer(Class<T> type, URL url) throws RpcException {
+        // 开启限流服务
         startQosServer(url);
         return protocol.refer(type, url);
     }

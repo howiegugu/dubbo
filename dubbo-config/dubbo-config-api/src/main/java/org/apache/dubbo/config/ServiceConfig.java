@@ -209,6 +209,7 @@ public class ServiceConfig<T> extends ServiceConfigBase<T> {
         initServiceMetadata(provider);
         serviceMetadata.setServiceType(getInterfaceClass());
         serviceMetadata.setTarget(getRef());
+        //元数据的key格式为 group/服务接口:版本号
         serviceMetadata.generateServiceKey();
     }
 
@@ -229,10 +230,13 @@ public class ServiceConfig<T> extends ServiceConfigBase<T> {
             if (!this.isRefreshed()) {
                 this.refresh();
             }
+            //服务导出配置配置为false则不导出
             if (this.shouldExport()) {
+                //服务发布前初始化一下元数据对象
                 this.init();
 
                 if (shouldDelay()) {
+                    //配置了服务的延迟发布配置则走延迟发布逻辑
                     doDelayExport();
                 } else {
                     // 开始暴露服务
@@ -360,25 +364,31 @@ public class ServiceConfig<T> extends ServiceConfigBase<T> {
         if (exported) {
             return;
         }
-
+        //服务路径 为空则设置为接口名，本例子中为link.elastic.dubbo.entity.DemoService
         if (StringUtils.isEmpty(path)) {
             path = interfaceName;
         }
+        //导出URL
         doExportUrls();
         exported();
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})
     private void doExportUrls() {
+        //模块服务存储库
         ModuleServiceRepository repository = getScopeModel().getServiceRepository();
         ServiceDescriptor serviceDescriptor;
+        //ref为服务实现类型 这里对应我们例子的DemoServiceImpl
         final boolean serverService = ref instanceof ServerService;
         if (serverService) {
             serviceDescriptor = ((ServerService) ref).getServiceDescriptor();
             repository.registerService(serviceDescriptor);
         } else {
+            //我们代码走这个逻辑 注册服务 这个注册不是向注册中心注册 这个是解析服务接口将服务方法等描述
+            // 信息存放在了服务存储ModuleServiceRepository类型对象的成员变量services中
             serviceDescriptor = repository.registerService(getInterfaceClass());
         }
+        // 提供者领域模型
         providerModel = new ProviderModel(serviceMetadata.getServiceKey(),
             ref,
             serviceDescriptor,
@@ -391,7 +401,7 @@ public class ServiceConfig<T> extends ServiceConfigBase<T> {
         providerModel.setDestroyRunner(getDestroyRunner());
         repository.registerProvider(providerModel);
         /**
-         * todo  为啥有两个url 同样地址
+         * todo  为啥有两个url 同样地址 双注册
          * service-discovery-registry://127.0.0.1:2181/org.apache.dubbo.registry.RegistryService?application=dubbo-demo-api-provider&dubbo=2.0.2
          * &pid=63928&registry=zookeeper&timestamp=1690251969730
          *
@@ -406,6 +416,7 @@ public class ServiceConfig<T> extends ServiceConfigBase<T> {
                 .orElse(path), group, version);
             // stub service will use generated service name
             if (!serverService) {
+                //模块服务存储库ModuleServiceRepository存储服务接口信息
                 // In case user specified path, register service one more time to map it to path.
                 repository.registerService(pathKey, interfaceClass);
             }
@@ -417,6 +428,7 @@ public class ServiceConfig<T> extends ServiceConfigBase<T> {
     }
 
     private void doExportUrlsFor1Protocol(ProtocolConfig protocolConfig, List<URL> registryURLs) {
+        //生成协议配置具体可见下图中的元数据配置中的attachments
         Map<String, String> map = buildAttributes(protocolConfig);
 
         // remove null key and null value
@@ -613,9 +625,9 @@ public class ServiceConfig<T> extends ServiceConfigBase<T> {
 
     private URL exportRemote(URL url, List<URL> registryURLs) {
         if (CollectionUtils.isNotEmpty(registryURLs)) {
-            // 开始循环每一个注册中心地址
+            //遍历所有注册地址与注册模式 逐个注册
             for (URL registryURL : registryURLs) {
-                // service-discovery-registry 为了将服务的接口相关信息存储在内存中
+                //为协议URL 添加应用级注册service-discovery-registry参数service-name-mapping为true
                 if (SERVICE_REGISTRY_PROTOCOL.equals(registryURL.getProtocol())) {
                     url = url.addParameterIfAbsent(SERVICE_NAME_MAPPING_KEY, "true");
                 }

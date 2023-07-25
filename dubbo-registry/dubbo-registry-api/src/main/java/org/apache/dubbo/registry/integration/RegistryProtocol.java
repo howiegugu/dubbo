@@ -224,6 +224,9 @@ public class RegistryProtocol implements Protocol, ScopeModelAware {
     public <T> Exporter<T> export(final Invoker<T> originInvoker) throws RpcException {
         URL registryUrl = getRegistryUrl(originInvoker);
         // url to export locally
+        // dubbo://192.168.1.9:20880/link.elastic.dubbo.entity.DemoService?
+        // anyhost=true&application=dubbo-demo-api-provider&background=false&bind.ip=192.168.1.9&bind.port=20880&deprecated=false&dubbo=2.0.2&dynamic=true&generic=false&interface=link.elastic.dubbo.entity.DemoService&methods=sayHello,sayHelloAsync&pid=14256&
+        // release=3.0.8&service-name-mapping=true&side=provider&timestamp=1653710479073
         URL providerUrl = getProviderUrl(originInvoker);
 
         // Subscribe the override data
@@ -231,6 +234,7 @@ public class RegistryProtocol implements Protocol, ScopeModelAware {
         //  the same service. Because the subscribed is cached key with the name of the service, it causes the
         //  subscription information to cover.
         final URL overrideSubscribeUrl = getSubscribedOverrideUrl(providerUrl);
+        // override配置
         final OverrideListener overrideSubscribeListener = new OverrideListener(overrideSubscribeUrl, originInvoker);
         Map<URL, NotifyListener> overrideListeners = getProviderConfigurationListener(providerUrl).getOverrideListeners();
         overrideListeners.put(registryUrl, overrideSubscribeListener);
@@ -261,7 +265,7 @@ public class RegistryProtocol implements Protocol, ScopeModelAware {
             // Deprecated! Subscribe to override rules in 2.6.x or before.
             registry.subscribe(overrideSubscribeUrl, overrideSubscribeListener);
         }
-
+        //内置监听器通知 这个不是通知消费者的
         notifyExport(exporter);
         //Ensure that a new exporter instance is returned every time export
         return new DestroyableExporter<>(exporter);
@@ -293,6 +297,7 @@ public class RegistryProtocol implements Protocol, ScopeModelAware {
 
         return (ExporterChangeableWrapper<T>) bounds.computeIfAbsent(key, s -> {
             Invoker<?> invokerDelegate = new InvokerDelegate<>(originInvoker, providerUrl);
+            // 这里会到具体的protocal去export
             return new ExporterChangeableWrapper<>((Exporter<T>) protocol.export(invokerDelegate), originInvoker);
         });
     }
