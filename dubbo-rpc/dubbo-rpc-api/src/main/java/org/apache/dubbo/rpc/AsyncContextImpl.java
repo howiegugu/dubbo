@@ -31,6 +31,7 @@ public class AsyncContextImpl implements AsyncContext {
     private ClassLoader stagedClassLoader;
 
     public AsyncContextImpl() {
+        // 复制当前线程的各个threadlocal
         restoreContext = RpcContext.storeContext();
         restoreClassLoader = Thread.currentThread().getContextClassLoader();
     }
@@ -42,6 +43,7 @@ public class AsyncContextImpl implements AsyncContext {
                 Throwable bizExe = (Throwable) value;
                 future.completeExceptionally(bizExe);
             } else {
+                // 设置返回值
                 future.complete(value);
             }
         } else {

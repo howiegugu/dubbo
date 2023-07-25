@@ -36,10 +36,13 @@ public class RpcContextAttachment extends RpcContext{
      */
     @SuppressWarnings("unchecked")
     public static AsyncContext startAsync() throws IllegalStateException {
+        // threadlocal
         RpcContextAttachment currentContext = getServerAttachment();
         if (currentContext.asyncContext == null) {
+            // 异步上下文
             currentContext.asyncContext = new AsyncContextImpl();
         }
+        // 新建一个CompleteableFuture
         currentContext.asyncContext.start();
         return currentContext.asyncContext;
     }

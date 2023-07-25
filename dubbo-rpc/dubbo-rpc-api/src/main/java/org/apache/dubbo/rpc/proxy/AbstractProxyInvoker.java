@@ -109,7 +109,7 @@ public abstract class AbstractProxyInvoker<T> implements Invoker<T> {
             if (originEntry != null) {
                 Profiler.setToBizProfiler(originEntry);
             }
-
+            // todo 底层都会去转成异步？
             CompletableFuture<Object> future = wrapWithFuture(value, invocation);
             CompletableFuture<AppResponse> appResponseFuture = future.handle((obj, t) -> {
                 AppResponse result = new AppResponse(invocation);
@@ -139,6 +139,7 @@ public abstract class AbstractProxyInvoker<T> implements Invoker<T> {
         if (value instanceof CompletableFuture) {
             invocation.put(PROVIDER_ASYNC_KEY, Boolean.TRUE);
             return (CompletableFuture<Object>) value;
+            // 如果开启了异步上下文 那么就是在这里
         } else if (RpcContext.getServerAttachment().isAsyncStarted()) {
             invocation.put(PROVIDER_ASYNC_KEY, Boolean.TRUE);
             return ((AsyncContextImpl) (RpcContext.getServerAttachment().getAsyncContext())).getInternalFuture();

@@ -736,6 +736,7 @@ public class RpcContext {
     /**
      * @return
      * @throws IllegalStateException
+     * 开启异步执行任务
      */
     @SuppressWarnings("unchecked")
     public static AsyncContext startAsync() throws IllegalStateException {
@@ -817,6 +818,7 @@ public class RpcContext {
 
     protected static void restoreContext(RestoreContext restoreContext) {
         if (restoreContext != null) {
+            // 将之前从上个线程复制的信息 搞到当前异步线程threadlocal
             restoreContext.restore();
         }
     }

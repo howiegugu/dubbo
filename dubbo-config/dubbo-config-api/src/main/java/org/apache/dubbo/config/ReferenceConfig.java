@@ -216,6 +216,7 @@ public class ReferenceConfig<T> extends ReferenceConfigBase<T> {
 
             synchronized (this) {
                 if (ref == null) {
+                    // 初始化代理对象
                     init();
                 }
             }
@@ -283,7 +284,7 @@ public class ReferenceConfig<T> extends ReferenceConfigBase<T> {
             repository.registerConsumer(consumerModel);
 
             serviceMetadata.getAttachments().putAll(referenceParameters);
-
+            // 创建实际代理调用
             ref = createProxy(referenceParameters);
 
             serviceMetadata.setTarget(ref);
