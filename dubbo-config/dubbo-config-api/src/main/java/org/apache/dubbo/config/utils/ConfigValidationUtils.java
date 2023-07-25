@@ -228,11 +228,13 @@ public class ConfigValidationUtils {
                 }
             }
         }
+        // 注册中心url兼容
         return genCompatibleRegistries(interfaceConfig.getScopeModel(), registryList, provider);
     }
 
     private static List<URL> genCompatibleRegistries(ScopeModel scopeModel, List<URL> registryList, boolean provider) {
         List<URL> result = new ArrayList<>(registryList.size());
+        //遍历所有的注册中心 为每个注册中心增加兼容的服务发现注册中心地址配置
         registryList.forEach(registryURL -> {
             if (provider) {
                 // for registries enabled service discovery, automatically register interface compatible addresses.
@@ -252,10 +254,13 @@ public class ConfigValidationUtils {
                         result.add(interfaceCompatibleRegistryURL);
                     }
                 } else {
+                    //正常情况下我们的配置会走这个逻辑
+                    // 获取服务注册的注册模式 配置为dubbo.application.register-mode 默认值为all 既注册接口数据又注册应用级信息
                     registerMode = registryURL.getParameter(REGISTER_MODE_KEY, ConfigurationUtils.getCachedDynamicProperty(scopeModel, DUBBO_REGISTER_MODE_DEFAULT_KEY, DEFAULT_REGISTER_MODE_ALL));
                     if (!isValidRegisterMode(registerMode)) {
                         registerMode = DEFAULT_REGISTER_MODE_INTERFACE;
                     }
+                    //根据逻辑条件判断是否添加应用级注册中心地址
                     if ((DEFAULT_REGISTER_MODE_INSTANCE.equalsIgnoreCase(registerMode) || DEFAULT_REGISTER_MODE_ALL.equalsIgnoreCase(registerMode))
                         && registryNotExists(registryURL, registryList, SERVICE_REGISTRY_PROTOCOL)) {
                         URL serviceDiscoveryRegistryURL = URLBuilder.from(registryURL)
@@ -265,6 +270,7 @@ public class ConfigValidationUtils {
                         result.add(serviceDiscoveryRegistryURL);
                     }
 
+                    //根据逻辑条件判断是否添加接口级注册中心地址
                     if (DEFAULT_REGISTER_MODE_INTERFACE.equalsIgnoreCase(registerMode) || DEFAULT_REGISTER_MODE_ALL.equalsIgnoreCase(registerMode)) {
                         result.add(registryURL);
                     }
