@@ -95,6 +95,7 @@ import static org.apache.dubbo.rpc.support.ProtocolUtils.isGeneric;
 
 /**
  * 服务配置实现类,
+ *
  * @param <T>
  */
 public class ServiceConfig<T> extends ServiceConfigBase<T> {
@@ -234,6 +235,7 @@ public class ServiceConfig<T> extends ServiceConfigBase<T> {
                 if (shouldDelay()) {
                     doDelayExport();
                 } else {
+                    // 开始暴露服务
                     doExport();
                 }
             }
@@ -388,7 +390,14 @@ public class ServiceConfig<T> extends ServiceConfigBase<T> {
 
         providerModel.setDestroyRunner(getDestroyRunner());
         repository.registerProvider(providerModel);
-
+        /**
+         * todo  为啥有两个url 同样地址
+         * service-discovery-registry://127.0.0.1:2181/org.apache.dubbo.registry.RegistryService?application=dubbo-demo-api-provider&dubbo=2.0.2
+         * &pid=63928&registry=zookeeper&timestamp=1690251969730
+         *
+         * registry://127.0.0.1:2181/org.apache.dubbo.registry.RegistryService?application=dubbo-demo-api-provider&dubbo=2.0.2
+         * &pid=63928&registry=zookeeper&timestamp=1690251969730
+         */
         List<URL> registryURLs = ConfigValidationUtils.loadRegistries(this, true);
 
         for (ProtocolConfig protocolConfig : protocols) {
@@ -400,6 +409,7 @@ public class ServiceConfig<T> extends ServiceConfigBase<T> {
                 // In case user specified path, register service one more time to map it to path.
                 repository.registerService(pathKey, interfaceClass);
             }
+            // 不同协议依次暴露
             doExportUrlsFor1Protocol(protocolConfig, registryURLs);
         }
 
@@ -413,7 +423,13 @@ public class ServiceConfig<T> extends ServiceConfigBase<T> {
         map.keySet().removeIf(key -> StringUtils.isEmpty(key) || StringUtils.isEmpty(map.get(key)));
         // init serviceMetadata attachments
         serviceMetadata.getAttachments().putAll(map);
-
+        /**
+         * dubbo://192.168.89.1:20880/org.apache.dubbo.demo.DemoService?
+         * anyhost=true&application=dubbo-demo-api-provider&background=false&
+         * bind.ip=192.168.89.1&bind.port=20880&deprecated=false&dubbo=2.0.2&
+         * dynamic=true&generic=false&interface=org.apache.dubbo.demo.DemoService&
+         * methods=sayHello,sayHelloAsync&pid=64372&side=provider&timestamp=1690252154854
+         */
         URL url = buildUrl(protocolConfig, map);
 
         exportUrl(url, registryURLs);
@@ -579,11 +595,13 @@ public class ServiceConfig<T> extends ServiceConfigBase<T> {
 
             // export to local if the config is not remote (export to remote only when config is remote)
             if (!SCOPE_REMOTE.equalsIgnoreCase(scope)) {
+                // 本地导出
                 exportLocal(url);
             }
 
             // export to remote if the config is not local (export to local only when config is local)
             if (!SCOPE_LOCAL.equalsIgnoreCase(scope)) {
+                // 远程导出
                 url = exportRemote(url, registryURLs);
                 if (!isGeneric(generic) && !getScopeModel().isInternal()) {
                     MetadataUtils.publishServiceDefinition(url, providerModel.getServiceModel(), getApplicationModel());
@@ -595,7 +613,9 @@ public class ServiceConfig<T> extends ServiceConfigBase<T> {
 
     private URL exportRemote(URL url, List<URL> registryURLs) {
         if (CollectionUtils.isNotEmpty(registryURLs)) {
+            // 开始循环每一个注册中心地址
             for (URL registryURL : registryURLs) {
+                // service-discovery-registry 为了将服务的接口相关信息存储在内存中
                 if (SERVICE_REGISTRY_PROTOCOL.equals(registryURL.getProtocol())) {
                     url = url.addParameterIfAbsent(SERVICE_NAME_MAPPING_KEY, "true");
                 }
@@ -606,12 +626,14 @@ public class ServiceConfig<T> extends ServiceConfigBase<T> {
                 }
 
                 url = url.addParameterIfAbsent(DYNAMIC_KEY, registryURL.getParameter(DYNAMIC_KEY));
+                // 监控中心的地址，如果配置了的话，服务调用信息就会上报
                 URL monitorUrl = ConfigValidationUtils.loadMonitor(this, registryURL);
                 if (monitorUrl != null) {
                     url = url.putAttribute(MONITOR_KEY, monitorUrl);
                 }
 
                 // For providers, this is used to enable custom proxy to generate invoker
+                // 在提供方，这里支持自定义来生成代理
                 String proxy = url.getParameter(PROXY_KEY);
                 if (StringUtils.isNotEmpty(proxy)) {
                     registryURL = registryURL.addParameter(PROXY_KEY, proxy);
@@ -643,10 +665,18 @@ public class ServiceConfig<T> extends ServiceConfigBase<T> {
 
     @SuppressWarnings({"unchecked", "rawtypes"})
     private void doExportUrl(URL url, boolean withMetaData) {
+        // url 对应的内存值为：injvm://127.0.0.1/com.hmilyylimh.cloud.facade.demo.Demo
+        // proxyFactory 为代理自适应扩展点
+        // 获取经过 AbstractProxyInvoker 包装过的 Wrapper 动态代理类
+        // 即 invoker 是 AbstractProxyInvoker 类型的，
+        // 然后 AbstractProxyInvoker 中持有了 Wrapper 动态代理类
+
         Invoker<?> invoker = proxyFactory.getInvoker(ref, (Class) interfaceClass, url);
         if (withMetaData) {
             invoker = new DelegateProviderMetaDataInvoker(invoker, this);
         }
+        // protocolSPI 为协议自定义扩展点
+        // 将 invoker 按照指定的协议进行导出
         Exporter<?> exporter = protocolSPI.export(invoker);
         exporters.add(exporter);
     }
@@ -656,6 +686,7 @@ public class ServiceConfig<T> extends ServiceConfigBase<T> {
      * always export injvm
      */
     private void exportLocal(URL url) {
+        // 属性url
         URL local = URLBuilder.from(url)
             .setProtocol(LOCAL_PROTOCOL)
             .setHost(LOCALHOST_VALUE)

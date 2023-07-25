@@ -220,6 +220,7 @@ public class RegistryProtocol implements Protocol, ScopeModelAware {
     }
 
     @Override
+    // 远程导出核心逻辑，开启Netty端口服务 + 向注册中心写数据
     public <T> Exporter<T> export(final Invoker<T> originInvoker) throws RpcException {
         URL registryUrl = getRegistryUrl(originInvoker);
         // url to export locally
@@ -245,6 +246,7 @@ public class RegistryProtocol implements Protocol, ScopeModelAware {
         // decide if we need to delay publish (provider itself and registry should both need to register)
         boolean register = providerUrl.getParameter(REGISTER_KEY, true) && registryUrl.getParameter(REGISTER_KEY, true);
         if (register) {
+            // 注册到注册中心
             register(registry, registeredProviderUrl);
         }
 

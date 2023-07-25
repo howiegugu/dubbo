@@ -415,7 +415,7 @@ public class ServiceAnnotationPostProcessor implements BeanDefinitionRegistryPos
     private AbstractBeanDefinition buildServiceBeanDefinition(Map<String, Object> serviceAnnotationAttributes,
                                                               String serviceInterface,
                                                               String refServiceBeanName) {
-
+        // servicebean 是bean的实现类
         BeanDefinitionBuilder builder = rootBeanDefinition(ServiceBean.class);
 
         AbstractBeanDefinition beanDefinition = builder.getBeanDefinition();
@@ -430,6 +430,7 @@ public class ServiceAnnotationPostProcessor implements BeanDefinitionRegistryPos
         //set config id, for ConfigManager cache key
         //builder.addPropertyValue("id", beanName);
         // References "ref" property to annotated-@Service Bean
+        // 实现类
         addPropertyReference(builder, "ref", refServiceBeanName);
         // Set interface
         builder.addPropertyValue("interface", serviceInterface);
