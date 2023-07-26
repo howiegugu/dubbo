@@ -94,10 +94,12 @@ public class CacheFilter implements Filter {
         if (cacheFactory == null || ConfigUtils.isEmpty(invoker.getUrl().getMethodParameter(invocation.getMethodName(), CACHE_KEY))) {
             return invoker.invoke(invocation);
         }
+        // 缓存工厂创建缓存
         Cache cache = cacheFactory.getCache(invoker.getUrl(), invocation);
         if (cache == null) {
             return invoker.invoke(invocation);
         }
+        // 这里改动可以只缓存某些参数字段作为key
         String key = StringUtils.toArgumentString(invocation.getArguments());
         Object value = cache.get(key);
         return (value != null) ? onCacheValuePresent(invocation, value) : onCacheValueNotPresent(invoker, invocation, cache, key);

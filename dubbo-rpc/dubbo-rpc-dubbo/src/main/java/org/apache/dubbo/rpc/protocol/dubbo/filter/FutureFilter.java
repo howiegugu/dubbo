@@ -87,6 +87,7 @@ public class FutureFilter implements ClusterFilter, ClusterFilter.Listener {
         try {
             onInvokeMethod.invoke(onInvokeInst, params);
         } catch (InvocationTargetException e) {
+            // 出异常还会继续调用
             fireThrowCallback(invoker, invocation, e.getTargetException());
         } catch (Throwable e) {
             fireThrowCallback(invoker, invocation, e);
@@ -177,6 +178,7 @@ public class FutureFilter implements ClusterFilter, ClusterFilter.Listener {
                 } else {
                     params = new Object[]{exception};
                 }
+                // 还是会继续调用 异常只是被吞掉打印日志
                 onthrowMethod.invoke(onthrowInst, params);
             } catch (Throwable e) {
                 logger.error(invocation.getMethodName() + ".call back method invoke error . callback method :" + onthrowMethod + ", url:" + invoker.getUrl(), e);

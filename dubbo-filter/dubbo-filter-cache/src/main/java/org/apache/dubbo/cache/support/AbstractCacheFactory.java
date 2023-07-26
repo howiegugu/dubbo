@@ -70,7 +70,7 @@ public abstract class AbstractCacheFactory implements CacheFactory {
             if (null != cache) {
                 return cache;
             }
-
+            // 创建缓存
             cache = createCache(url);
             caches.put(key, cache);
         }

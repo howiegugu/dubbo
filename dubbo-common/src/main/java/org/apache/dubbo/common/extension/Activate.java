@@ -53,7 +53,8 @@ public @interface Activate {
     String[] group() default {};
 
     /**
-     * Activate the current extension when the specified keys appear in the URL's parameters.
+     * Activate the current extension when the specified keys appear in the URL's parameters.、
+     * 当url 出现这个值时才生效这个组件
      * <p>
      * For example, given <code>@Activate("cache, validation")</code>, the current extension will be return only when
      * there's either <code>cache</code> or <code>validation</code> key appeared in the URL's parameters.

@@ -34,6 +34,7 @@ public class JValidation extends AbstractValidation {
      */
     @Override
     protected Validator createValidator(URL url) {
+        // 创建一个 Dubbo 框架默认的校验器
         return new JValidator(url);
     }
 

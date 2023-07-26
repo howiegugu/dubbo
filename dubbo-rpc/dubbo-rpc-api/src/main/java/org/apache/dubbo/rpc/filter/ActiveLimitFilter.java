@@ -38,7 +38,7 @@ import static org.apache.dubbo.rpc.Constants.ACTIVES_KEY;
  *      If there are more than configured (in this example 2) is trying to invoke remote method, then rest of invocation
  *      will wait for configured timeout(default is 0 second) before invocation gets kill by dubbo.
  * </pre>
- *
+ * 这个是在消费方 有超时时间
  * @see Filter
  */
 @Activate(group = CONSUMER, value = ACTIVES_KEY)

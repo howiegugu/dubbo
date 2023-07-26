@@ -40,6 +40,9 @@ public abstract class AbstractValidation implements Validation {
         String key = url.toFullString();
         Validator validator = validators.get(key);
         if (validator == null) {
+            // 若通过 url 从 Map 结构中找不到 value 的话，则直接根据 url 创建一个校验器实现类
+// 而且 createValidator 是一个 protected abstract 修饰的
+// 说明是一种模板方式，创建校验器实现类，是可被重写重新创建自定义的校验器
             validators.put(key, createValidator(url));
             validator = validators.get(key);
         }

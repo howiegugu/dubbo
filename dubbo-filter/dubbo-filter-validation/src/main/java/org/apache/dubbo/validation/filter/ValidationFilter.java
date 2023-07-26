@@ -82,19 +82,25 @@ public class ValidationFilter implements Filter {
      */
     @Override
     public Result invoke(Invoker<?> invoker, Invocation invocation) throws RpcException {
+        // Validation 接口的代理类被注入成功，且该调用的方法有 validation 属性
         if (validation != null && !invocation.getMethodName().startsWith("$")
             && ConfigUtils.isNotEmpty(invoker.getUrl().getMethodParameter(invocation.getMethodName(), VALIDATION_KEY))) {
             try {
+                // 接着通过 url 中 validation 属性值，并且为该方法创建对应的校验实现类
                 Validator validator = validation.getValidator(invoker.getUrl());
                 if (validator != null) {
+                    // 若找到校验实现类的话，则真正开启对方法的参数进行校验
                     validator.validate(invocation.getMethodName(), invocation.getParameterTypes(), invocation.getArguments());
                 }
             } catch (RpcException e) {
                 throw e;
             } catch (Throwable t) {
+                // 非 RpcException 异常的话，则直接封装结果返回
                 return AsyncRpcResult.newDefaultAsyncResult(t, invocation);
             }
         }
+        // 能来到这里，说明要么没有配置校验过滤器，要么就是校验了但参数都合法
+        // 既然没有抛异常的话，那么就直接调用下一个过滤器的逻辑
         return invoker.invoke(invocation);
     }
 

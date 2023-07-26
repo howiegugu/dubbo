@@ -468,11 +468,14 @@ public class ReferenceConfig<T> extends ReferenceConfigBase<T> {
 
     /**
      * Parse the directly configured url.
+     * 解析直连的配置地址
      */
     private void parseUrl(Map<String, String> referenceParameters) {
+        // 将配置的url地址按照分号进行切割，得到一个字符串数组
         String[] us = SEMICOLON_SPLIT_PATTERN.split(url);
         if (ArrayUtils.isNotEmpty(us)) {
             for (String u : us) {
+                // 将切出来的每个元素传入URL的valueOf方法中，得到一个可被识别的对象
                 URL url = URL.valueOf(u);
                 if (StringUtils.isEmpty(url.getPath())) {
                     url = url.setPath(interfaceName);

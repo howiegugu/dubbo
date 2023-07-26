@@ -242,6 +242,7 @@ class URL implements Serializable {
 
     /**
      * parse normal or encoded url string into strutted URL:
+     * 直连url格式
      * - dubbo://host:port/path?param=value
      * - URL.encode("dubbo://host:port/path?param=value")
      *

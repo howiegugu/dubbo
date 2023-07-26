@@ -53,6 +53,7 @@ public class LruCache implements Cache {
      * @param url A valid URL instance
      */
     public LruCache(URL url) {
+        // 默认1000容量
         final int max = url.getParameter("cache.size", 1000);
         this.store = new LRU2Cache<>(max);
     }
