@@ -401,6 +401,7 @@ public class DubboProtocol extends AbstractProtocol {
         }
 
         DubboProtocolServer protocolServer = new DubboProtocolServer(server);
+        //关闭等待时长默认为10秒
         loadServerProperties(protocolServer);
         return protocolServer;
     }

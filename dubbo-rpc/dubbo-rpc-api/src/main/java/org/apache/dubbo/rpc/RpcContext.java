@@ -54,6 +54,7 @@ public class RpcContext {
     private static final RpcContext AGENT = new RpcContext();
 
     /**
+     * 都会再某个过滤器中被抹除
      * use internal thread local to improve performance
      */
     private static final InternalThreadLocal<RpcContextAttachment> SERVER_LOCAL = new InternalThreadLocal<RpcContextAttachment>() {

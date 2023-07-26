@@ -482,6 +482,7 @@ public class RegistryProtocol implements Protocol, ScopeModelAware {
         }
 
         // group="a,b" or group="*"
+        // 分组
         Map<String, String> qs = (Map<String, String>) url.getAttribute(REFER_KEY);
         String group = qs.get(GROUP_KEY);
         if (StringUtils.isNotEmpty(group)) {

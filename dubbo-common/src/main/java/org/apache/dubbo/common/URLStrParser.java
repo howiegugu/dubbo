@@ -55,7 +55,7 @@ public final class URLStrParser {
         } else {
             pathEndIdx = decodedURLStr.length();
         }
-
+        // 参数提取出来 解析后的url
         String decodedBody = decodedURLStr.substring(0, pathEndIdx);
         return parseURLBody(decodedURLStr, decodedBody, parameters);
     }

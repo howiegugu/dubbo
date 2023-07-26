@@ -489,7 +489,7 @@ public class ReferenceAnnotationBeanPostProcessor extends AbstractAnnotationBean
         if (injectedElement.injectedObject == null) {
             throw new IllegalStateException("The AnnotatedInjectElement of @DubboReference should be inited before injection");
         }
-
+        // populatebean-> 这里开始构造referecenbean
         return getBeanFactory().getBean((String) injectedElement.injectedObject);
     }
 

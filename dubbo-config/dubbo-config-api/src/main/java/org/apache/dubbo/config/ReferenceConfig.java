@@ -216,7 +216,7 @@ public class ReferenceConfig<T> extends ReferenceConfigBase<T> {
 
             synchronized (this) {
                 if (ref == null) {
-                    // 初始化代理对象
+                    // 初始化引用对象
                     init();
                 }
             }
@@ -282,9 +282,9 @@ public class ReferenceConfig<T> extends ReferenceConfigBase<T> {
             consumerModel.setConfig(this);
 
             repository.registerConsumer(consumerModel);
-
+            // 所有的@DubboReference配置参数最终都是变成map存储起来
             serviceMetadata.getAttachments().putAll(referenceParameters);
-            // 创建实际代理调用
+            // 根据引用参数创建代理对象
             ref = createProxy(referenceParameters);
 
             serviceMetadata.setTarget(ref);
@@ -407,10 +407,12 @@ public class ReferenceConfig<T> extends ReferenceConfigBase<T> {
 
     @SuppressWarnings({"unchecked"})
     private T createProxy(Map<String, String> referenceParameters) {
+        // 判断是不是按照 injvm 协议进行引用
         if (shouldJvmRefer(referenceParameters)) {
             createInvokerForLocal(referenceParameters);
         } else {
             urls.clear();
+            // url 不为空，说明有单独进行点点直连的诉求
             if (StringUtils.isNotEmpty(url)) {
                 // user specified URL, could be peer-to-peer address, or register center's address.
                 parseUrl(referenceParameters);
@@ -446,13 +448,17 @@ public class ReferenceConfig<T> extends ReferenceConfigBase<T> {
      */
     @SuppressWarnings({"unchecked", "rawtypes"})
     private void createInvokerForLocal(Map<String, String> referenceParameters) {
+        // 将引用服务的参数对象 referenceParameters、injvm 重新再次封装为一个新对象
         URL url = new ServiceConfigURL(LOCAL_PROTOCOL, LOCALHOST_VALUE, 0, interfaceClass.getName(), referenceParameters);
         url = url.setScopeModel(getScopeModel());
         url = url.setServiceModel(consumerModel);
+        // 走过滤器那一套
         Invoker<?> withFilter = protocolSPI.refer(interfaceClass, url);
         // Local Invoke ( Support Cluster Filter / Filter )
         List<Invoker<?>> invokers = new ArrayList<>();
         invokers.add(withFilter);
+        // 将 invoker 对象最终聚合为一个集群 invoker 对象
+// 从另外一个角度看的话，也就意味着 Cluster 里面是有多个 invoker 对象的
         invoker = Cluster.getCluster(url.getScopeModel(), Cluster.DEFAULT).join(new StaticDirectory(url, invokers), true);
 
         if (logger.isInfoEnabled()) {
@@ -515,10 +521,13 @@ public class ReferenceConfig<T> extends ReferenceConfigBase<T> {
      */
     @SuppressWarnings({"unchecked", "rawtypes"})
     private void createInvokerForRemote() {
+        // 若 urls 集合只有 1 个元素的话，则直接调用 refer 进行远程引用
+
         if (urls.size() == 1) {
             URL curUrl = urls.get(0);
             invoker = protocolSPI.refer(interfaceClass, curUrl);
             if (!UrlUtils.isRegistry(curUrl)) {
+                // 不是注册协议 用cluster包起来
                 List<Invoker<?>> invokers = new ArrayList<>();
                 invokers.add(invoker);
                 invoker = Cluster.getCluster(scopeModel, Cluster.DEFAULT).join(new StaticDirectory(curUrl, invokers), true);
@@ -529,6 +538,7 @@ public class ReferenceConfig<T> extends ReferenceConfigBase<T> {
             for (URL url : urls) {
                 // For multi-registry scenarios, it is not checked whether each referInvoker is available.
                 // Because this invoker may become available later.
+                // 循环体中单独针对针对一个 url 进行远程引用
                 invokers.add(protocolSPI.refer(interfaceClass, url));
 
                 if (UrlUtils.isRegistry(url)) {
@@ -536,7 +546,8 @@ public class ReferenceConfig<T> extends ReferenceConfigBase<T> {
                     registryUrl = url;
                 }
             }
-
+            // 如果循环完了之后，发现含有注册中心地址的话，
+            // 那就继续用集群扩展器包装起来
             if (registryUrl != null) {
                 // registry url is available
                 // for multi-subscription scenario, use 'zone-aware' policy by default
@@ -546,6 +557,7 @@ public class ReferenceConfig<T> extends ReferenceConfigBase<T> {
                 invoker = Cluster.getCluster(registryUrl.getScopeModel(), cluster, false).join(new StaticDirectory(registryUrl, invokers), false);
             } else {
                 // not a registry url, must be direct invoke.
+
                 if (CollectionUtils.isEmpty(invokers)) {
                     throw new IllegalArgumentException("invokers == null");
                 }

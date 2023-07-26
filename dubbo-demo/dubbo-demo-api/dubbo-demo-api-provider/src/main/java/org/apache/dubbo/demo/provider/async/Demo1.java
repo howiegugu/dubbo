@@ -24,7 +24,7 @@ public class Demo1 {
         CompletableFuture<Integer> result2 = taskB2.applyToEither(taskC2, Function.identity())
             .thenCombine(taskA2, Integer::sum)
             .thenApplyAsync(integer -> integer + 4);
-
+        // todo 研究下CompletableFuture的源码
         CompletableFuture<Integer> result = result1.thenCombine(result2, Integer::sum);
         try {
             // 任务总超时时间设置为5s

@@ -36,6 +36,7 @@ public class GenericApplication {
     private static void runWithBootstrap(String[] args) {
         ReferenceConfig<GenericService> reference = new ReferenceConfig<>();
         reference.setInterface("org.apache.dubbo.demo.DemoService");
+        reference.setUrl("dubbo://host:port/path?param=value");
 
         String param = "dubbo generic invoke";
 
