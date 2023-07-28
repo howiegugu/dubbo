@@ -47,6 +47,11 @@ import java.util.concurrent.TimeUnit;
 import static org.apache.dubbo.registry.client.migration.model.MigrationStep.APPLICATION_FIRST;
 import static org.apache.dubbo.rpc.cluster.Constants.REFER_KEY;
 
+/**
+ * 进行新老订阅方案兼容选择不同invoker dubbo2 dubbo3
+ * dubbo.application.service-discovery.migration
+ * @param <T>
+ */
 public class MigrationInvoker<T> implements MigrationClusterInvoker<T> {
     private Logger logger = LoggerFactory.getLogger(MigrationInvoker.class);
 
@@ -294,7 +299,7 @@ public class MigrationInvoker<T> implements MigrationClusterInvoker<T> {
             default:
                 currentAvailableInvoker = invoker;
         }
-
+        // APPLICATION_FIRST 进入这里MockClusterInvoker
         return currentAvailableInvoker.invoke(invocation);
     }
 

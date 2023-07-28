@@ -105,10 +105,13 @@ public class MockClusterInvoker<T> implements ClusterInvoker<T> {
                 logger.warn("force-mock: " + invocation.getMethodName() + " force-mock enabled , url : " + getUrl());
             }
             //force:direct mock
+            // 强制mock
             result = doMockInvoke(invocation, null);
         } else {
             //fail-mock
             try {
+                // 执行正常流程 异常时再到下方执行mock
+                // 这里接下来是过滤器链
                 result = this.invoker.invoke(invocation);
 
                 //fix:#4585

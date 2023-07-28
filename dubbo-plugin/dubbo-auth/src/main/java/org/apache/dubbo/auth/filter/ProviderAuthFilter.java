@@ -29,6 +29,9 @@ import org.apache.dubbo.rpc.Result;
 import org.apache.dubbo.rpc.RpcException;
 import org.apache.dubbo.rpc.model.ApplicationModel;
 
+/**
+ * ConsumerSignFilter
+ */
 @Activate(group = CommonConstants.PROVIDER, value = Constants.SERVICE_AUTH, order = -10000)
 public class ProviderAuthFilter implements Filter {
     private ApplicationModel applicationModel;

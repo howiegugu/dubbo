@@ -40,7 +40,7 @@ import static org.apache.dubbo.remoting.Constants.MAX_BUFFER_SIZE;
 import static org.apache.dubbo.remoting.Constants.MIN_BUFFER_SIZE;
 
 /**
- * NettyCodecAdapter.
+ * NettyCodecAdapter. 利用spi 的codec进行编解码
  */
 final class NettyCodecAdapter {
 

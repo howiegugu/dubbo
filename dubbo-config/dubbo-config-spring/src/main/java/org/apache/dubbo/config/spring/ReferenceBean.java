@@ -345,11 +345,13 @@ public class ReferenceBean<T> implements FactoryBean<T>,
         //get reference proxy
         return referenceConfig.get();
     }
-
+    // 懒加载初始化
     private class DubboReferenceLazyInitTargetSource extends AbstractLazyCreationTargetSource {
 
         @Override
         protected Object createObject() throws Exception {
+            // 生成的reference代理拥有 EchoService 和 Destroyable 两个接口
+            // 得益于jdk创建代理可以添加多个接口
             return getCallProxy();
         }
 
