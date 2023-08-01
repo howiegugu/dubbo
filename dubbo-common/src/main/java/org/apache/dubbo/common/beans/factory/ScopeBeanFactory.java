@@ -204,6 +204,7 @@ public class ScopeBeanFactory {
         }
         List<BeanInfo> candidates = null;
         BeanInfo firstCandidate = null;
+        //遍历列表查询
         for (BeanInfo beanInfo : registeredBeanInfos) {
             // if required bean type is same class/superclass/interface of the registered bean
             if (type.isAssignableFrom(beanInfo.instance.getClass())) {

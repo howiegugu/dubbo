@@ -26,7 +26,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * ExtensionDirector is a scoped extension loader manager.
- *
+ * 有点像双亲委派
  * <p></p>
  * <p>ExtensionDirector supports multiple levels, and the child can inherit the parent's extension instances. </p>
  * <p>The way to find and create an extension instance is similar to Java classloader.</p>
@@ -86,7 +86,8 @@ public class ExtensionDirector implements ExtensionAccessor {
             scope = annotation.scope();
             extensionScopeMap.put(type, scope);
         }
-
+        //首次访问的时候当前类型的扩展加载器类型肯定是空的,会走如下两个逻辑中的其中一个进行创建扩展加载器
+        //1)如果 扩展域为SELF 自给自足，为每个作用域创建一个实例，用于特殊的SPI扩展，如{@link ExtensionInjector}
         if (loader == null && scope == ExtensionScope.SELF) {
             // create an instance in self scope
             loader = createExtensionLoader0(type);
@@ -109,6 +110,8 @@ public class ExtensionDirector implements ExtensionAccessor {
 
     private <T> ExtensionLoader<T> createExtensionLoader(Class<T> type) {
         ExtensionLoader<T> loader = null;
+        //当前类型注解的scope与当前扩展访问器ExtensionDirector的scope是否一致,不一致则抛出异常
+        //当前类型ExtensionDirector的scope是在构造器中传递的,在Model对象初始化的时候创建的本类型
         if (isScopeMatched(type)) {
             // if scope is matched, just create it
             loader = createExtensionLoader0(type);

@@ -39,6 +39,7 @@ import static org.apache.dubbo.common.constants.CommonConstants.THREAD_NAME_KEY;
  * EagerThreadPool
  * When the core threads are all in busy,
  * create new thread instead of putting task into blocking queue.
+ * 就是为了应对突发情况 需要尽快把请求都处理掉
  */
 public class EagerThreadPool implements ThreadPool {
 

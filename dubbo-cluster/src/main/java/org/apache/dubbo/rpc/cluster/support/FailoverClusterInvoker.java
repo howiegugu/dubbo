@@ -73,7 +73,7 @@ public class FailoverClusterInvoker<T> extends AbstractClusterInvoker<T> {
                 // 检测 invoker 是否被销毁了
                 checkWhetherDestroyed();
                 // 重新拿到调用接口的所有提供者列表集合，
-// 粗俗理解，就是提供该接口服务的每个提供方节点就是一个 invoker 对象
+                // 粗俗理解，就是提供该接口服务的每个提供方节点就是一个 invoker 对象
                 copyInvokers = list(invocation);
                 // check again
                 // 再次检查所有拿到的 invokes 的一些可用状态

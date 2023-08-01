@@ -60,7 +60,7 @@ public class SpringExtensionInjector implements ExtensionInjector {
         if (type.isInterface() && type.isAnnotationPresent(SPI.class)) {
             return null;
         }
-
+        // 从bean工厂拿
         T bean = getOptionalBean(context, name, type);
         if (bean != null) {
             return bean;
