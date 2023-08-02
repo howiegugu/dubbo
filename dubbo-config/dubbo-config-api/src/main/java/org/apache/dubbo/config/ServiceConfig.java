@@ -636,7 +636,8 @@ public class ServiceConfig<T> extends ServiceConfigBase<T> {
                 if (LOCAL_PROTOCOL.equalsIgnoreCase(url.getProtocol())) {
                     continue;
                 }
-
+                // dynamic = true 就会在注册中心创建临时节点
+                // dynamic = false 就会在注册中心创建永久节点
                 url = url.addParameterIfAbsent(DYNAMIC_KEY, registryURL.getParameter(DYNAMIC_KEY));
                 // 监控中心的地址，如果配置了的话，服务调用信息就会上报
                 URL monitorUrl = ConfigValidationUtils.loadMonitor(this, registryURL);
