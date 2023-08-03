@@ -61,6 +61,7 @@ public class ClassLoaderResourceLoader {
             synchronized (ClassLoaderResourceLoader.class) {
                 if (classLoaderResourcesCache == null || (classLoaderCache = classLoaderResourcesCache.get()) == null) {
                     classLoaderCache = new ConcurrentHashMap<>();
+                    // 防止内存溢出
                     classLoaderResourcesCache = new SoftReference<>(classLoaderCache);
                 }
             }

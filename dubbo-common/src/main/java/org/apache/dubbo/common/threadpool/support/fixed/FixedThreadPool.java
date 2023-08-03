@@ -49,6 +49,7 @@ public class FixedThreadPool implements ThreadPool {
         int queues = url.getParameter(QUEUES_KEY, DEFAULT_QUEUES);
         return new ThreadPoolExecutor(threads, threads, 0, TimeUnit.MILLISECONDS,
                 queues == 0 ? new SynchronousQueue<Runnable>() :
+                    // 小于0 创建容量最大数256M的队列 不对有点诡异 他是判断虚拟机内存是否还剩下有256M
                         (queues < 0 ? new MemorySafeLinkedBlockingQueue<Runnable>()
                                 : new LinkedBlockingQueue<Runnable>(queues)),
                 new NamedInternalThreadFactory(name, true), new AbortPolicyWithReport(name, url));

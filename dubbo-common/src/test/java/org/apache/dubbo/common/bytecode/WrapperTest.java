@@ -16,6 +16,7 @@
  */
 package org.apache.dubbo.common.bytecode;
 
+import org.apache.dubbo.common.compiler.support.JavassistCompilerTest;
 import org.apache.dubbo.common.utils.ClassUtils;
 
 import org.junit.jupiter.api.Assertions;

@@ -35,9 +35,11 @@ public class SpiExtensionInjector implements ExtensionInjector {
 
     @Override
     public <T> T getInstance(final Class<T> type, final String name) {
+        //如果是一个标准的被@SPI注解修饰的扩展接口则满足条件
         if (!type.isInterface() || !type.isAnnotationPresent(SPI.class)) {
             return null;
         }
+        //使用扩展访问器来获取对应类型的扩展加载器
         ExtensionLoader<T> loader = extensionAccessor.getExtensionLoader(type);
         if (loader == null) {
             return null;
