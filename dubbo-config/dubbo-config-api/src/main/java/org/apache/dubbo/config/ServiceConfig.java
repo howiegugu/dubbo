@@ -94,7 +94,7 @@ import static org.apache.dubbo.rpc.cluster.Constants.EXPORT_KEY;
 import static org.apache.dubbo.rpc.support.ProtocolUtils.isGeneric;
 
 /**
- * 服务配置实现类,
+ * 服务配置实现类,抽象属性的具体实现
  *
  * @param <T>
  */
@@ -156,6 +156,7 @@ public class ServiceConfig<T> extends ServiceConfigBase<T> {
     @Override
     protected void postProcessAfterScopeModelChanged(ScopeModel oldScopeModel, ScopeModel newScopeModel) {
         super.postProcessAfterScopeModelChanged(oldScopeModel, newScopeModel);
+        // 初始化adaptive
         protocolSPI = this.getExtensionLoader(Protocol.class).getAdaptiveExtension();
         proxyFactory = this.getExtensionLoader(ProxyFactory.class).getAdaptiveExtension();
     }

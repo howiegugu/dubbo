@@ -402,6 +402,8 @@ public abstract class AbstractConfig implements Serializable {
             ScopeModel oldScopeModel = this.scopeModel;
             this.scopeModel = scopeModel;
             // reinitialize spi extension and change referenced config's scope model
+            //被子类重写的方法,根据多态会调用具体子类型的这个方法我们下面来看
+            //子类应该重写此方法以初始化其SPI扩展并更改引用的配置的范围模型。
             this.postProcessAfterScopeModelChanged(oldScopeModel, this.scopeModel);
         }
     }

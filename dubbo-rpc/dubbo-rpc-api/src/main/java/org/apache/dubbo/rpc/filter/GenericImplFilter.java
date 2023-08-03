@@ -60,8 +60,14 @@ public class GenericImplFilter implements Filter, Filter.Listener {
 
     @Override
     public Result invoke(Invoker<?> invoker, Invocation invocation) throws RpcException {
+        // 是否泛化为true
         String generic = invoker.getUrl().getParameter(GENERIC_KEY);
         // calling a generic impl service
+        // 1、如果是泛化调用所认可的标识（ProtocolUtils.isGeneric(generic)）
+        // 2、且调用下游接口的方法名不是 "$invoke"
+        // 3、且调用下游接口的方法名不是 "$invokeAsync"
+        // 4、且 invocation 对象的类型还必须属于 RpcInvocation 类型
+
         if (isCallingGenericImpl(generic, invocation)) {
             RpcInvocation invocation2 = new RpcInvocation(invocation);
 
@@ -81,15 +87,17 @@ public class GenericImplFilter implements Filter, Filter.Listener {
             }
 
             Object[] args;
+            // 如果 generic = bean，则调用 JavaBeanSerializeUtil 工具类进行序列化操作
             if (ProtocolUtils.isBeanGenericSerialization(generic)) {
                 args = new Object[arguments.length];
                 for (int i = 0; i < arguments.length; i++) {
                     args[i] = JavaBeanSerializeUtil.serialize(arguments[i], JavaBeanAccessor.METHOD);
                 }
             } else {
+                // 如果 generic != bean 的话，则调用默认的序列化操作
                 args = PojoUtils.generalize(arguments);
             }
-
+            // 然后把一些调用所需的一些参数都全部放到这个新的 invocation2 对象中
             if (RpcUtils.isReturnTypeFuture(invocation)) {
                 invocation2.setMethodName($INVOKE_ASYNC);
             } else {
@@ -119,8 +127,7 @@ public class GenericImplFilter implements Filter, Filter.Listener {
                 }
             }
 
-            invocation.setAttachment(
-                    GENERIC_KEY, invoker.getUrl().getParameter(GENERIC_KEY));
+            invocation.setAttachment(GENERIC_KEY, invoker.getUrl().getParameter(GENERIC_KEY));
         }
         return invoker.invoke(invocation);
     }
@@ -140,8 +147,7 @@ public class GenericImplFilter implements Filter, Filter.Listener {
                 Object value = appResponse.getValue();
                 try {
                     Class<?> invokerInterface = invoker.getInterface();
-                    if (!$INVOKE.equals(methodName) && !$INVOKE_ASYNC.equals(methodName)
-                            && invokerInterface.isAssignableFrom(GenericService.class)) {
+                    if (!$INVOKE.equals(methodName) && !$INVOKE_ASYNC.equals(methodName) && invokerInterface.isAssignableFrom(GenericService.class)) {
                         try {
                             // find the real interface from url
                             String realInterface = invoker.getUrl().getParameter(Constants.INTERFACE);
@@ -214,16 +220,11 @@ public class GenericImplFilter implements Filter, Filter.Listener {
     }
 
     private boolean isCallingGenericImpl(String generic, Invocation invocation) {
-        return ProtocolUtils.isGeneric(generic)
-                && (!$INVOKE.equals(invocation.getMethodName()) && !$INVOKE_ASYNC.equals(invocation.getMethodName()))
-                && invocation instanceof RpcInvocation;
+        return ProtocolUtils.isGeneric(generic) && (!$INVOKE.equals(invocation.getMethodName()) && !$INVOKE_ASYNC.equals(invocation.getMethodName())) && invocation instanceof RpcInvocation;
     }
 
     private boolean isMakingGenericCall(String generic, Invocation invocation) {
-        return (invocation.getMethodName().equals($INVOKE) || invocation.getMethodName().equals($INVOKE_ASYNC))
-                && invocation.getArguments() != null
-                && invocation.getArguments().length == 3
-                && ProtocolUtils.isGeneric(generic);
+        return (invocation.getMethodName().equals($INVOKE) || invocation.getMethodName().equals($INVOKE_ASYNC)) && invocation.getArguments() != null && invocation.getArguments().length == 3 && ProtocolUtils.isGeneric(generic);
     }
 
 }
